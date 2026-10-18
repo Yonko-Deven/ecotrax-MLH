@@ -1,0 +1,86 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 150 15% 98%;
+    --foreground: 150 20% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 20% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 20% 5%;
+    --primary: 142 72% 29%; /* Earthy Forest Green for high contrast in light mode */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 15% 90%;
+    --secondary-foreground: 150 20% 5%;
+    --muted: 150 10% 95%;
+    --muted-foreground: 150 10% 40%;
+    --accent: 142 45% 40%; 
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 150 15% 90%;
+    --input: 150 15% 90%;
+    --ring: 142 72% 29%;
+    --radius: 1rem;
+    --chart-1: 142 72% 29%;
+    --chart-2: 180 100% 40%;
+    --chart-3: 200 100% 30%;
+    --chart-4: 40 100% 50%;
+    --chart-5: 10 100% 50%;
+  }
+
+  .dark {
+    --background: 150 21% 12%; 
+    --foreground: 0 0% 98%;
+    --card: 150 21% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 150 21% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 157 100% 50%; /* Neon Green #00FF9F kept for Dark Mode */
+    --primary-foreground: 150 21% 8%;
+    --secondary: 150 21% 18%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 150 21% 18%;
+    --muted-foreground: 150 5% 70%;
+    --accent: 157 100% 50%;
+    --accent-foreground: 150 21% 8%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 150 21% 20%;
+    --input: 150 21% 20%;
+    --ring: 157 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body transition-colors duration-300;
+    background-image: radial-gradient(circle at top right, hsla(157, 100%, 50%, 0.05), transparent),
+                      radial-gradient(circle at bottom left, hsla(180, 100%, 50%, 0.05), transparent);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline;
+  }
+}
+
+.glass {
+  @apply bg-background/40 backdrop-blur-md border border-white/10 dark:border-white/5 shadow-xl;
+}
+
+.neon-glow {
+  box-shadow: 0 0 15px hsla(157, 100%, 50%, 0.4);
+}
+
+.neon-text {
+  text-shadow: 0 0 8px hsla(157, 100%, 50%, 0.6);
+}
+
+.bg-grid-white {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / 0.04)'%3E%3Cpath d='M0 .5H31.5V32'/%3E%3C/svg%3E");
+}

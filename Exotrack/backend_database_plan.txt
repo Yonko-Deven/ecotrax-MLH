@@ -1,0 +1,171 @@
+# Ecotrax Backend Database Integration Plan (Improved Version)
+
+This document outlines the enhanced and scalable integration of Firebase Firestore for Ecotrax. The updated design ensures support for communities, role-based access, activity tracking, and large-scale data handling.
+
+---
+
+# Phase 1: Database Schema Design (Improved)
+
+We will use Cloud Firestore with a modular and scalable structure.
+
+---
+
+## 1. `users` (Collection)
+Stores user profiles and onboarding state.
+
+- Document ID: `uid` (Firebase Auth UID)
+- Fields:
+  - `name`
+  - `email`
+  - `points` (number, default 0)
+  - `rank` (number, optional)
+  - `hasJoinedCommunity` (boolean)
+  - `createdAt` (timestamp)
+
+> Note:
+> - Roles are NOT stored here (handled per community)
+
+---
+
+## 2. `communities` (Collection)
+Stores all community metadata.
+
+- Document ID: Auto-generated
+- Fields:
+  - `name`
+  - `icon`
+  - `createdBy` (userId)
+  - `isPublic` (boolean)
+  - `createdAt` (timestamp)
+  - `isDeleted` (boolean, default false)
+
+---
+
+### Subcollection: `members`
+Path: `communities/{communityId}/members/{userId}`
+
+- Fields:
+  - `role` ("admin" | "moderator" | "member")
+  - `joinedAt` (timestamp)
+
+> Benefits:
+> - Avoids document size limits
+> - Enables role-based queries
+> - Supports large communities
+
+---
+
+## 3. `invites` (Collection)
+Handles secure community joining.
+
+- Document ID: Auto-generated
+- Fields:
+  - `communityId`
+  - `code` (unique string)
+  - `createdBy`
+  - `uses` (number)
+  - `maxUses` (number, optional)
+  - `expiresAt` (timestamp, optional)
+  - `createdAt` (timestamp)
+
+> Supports:
+> - Invite links
+> - Expiry + usage limits
+> - Abuse prevention
+
+---
+
+## 4. `reports` (Collection)
+Stores environmental reports scoped to communities.
+
+- Document ID: Auto-generated
+- Fields:
+  - `communityId`
+  - `userId`
+  - `issueType` (air, water, garbage, noise)
+  - `description`
+  - `locationName`
+  - `coordinates` (GeoPoint)
+  - `imageUrl`
+  - `status` ("open" | "in_progress" | "resolved")
+  - `assignedTo` (userId, optional)
+  - `createdAt` (timestamp)
+
+> Improvements:
+> - Community-level filtering
+> - Admin control enabled
+
+---
+
+## 5. `user_challenges` (Collection)
+Tracks user participation in challenges (normalized).
+
+- Document ID: Auto-generated
+- Fields:
+  - `userId`
+  - `challengeId`
+  - `progress`
+  - `joinedAt`
+
+> Replaces array-based storage for scalability
+
+---
+
+## 6. `challenges` (Collection)
+Stores community challenges.
+
+- Document ID: Auto-generated
+- Fields:
+  - `title`
+  - `category`
+  - `description`
+  - `deadline`
+  - `createdAt`
+
+---
+
+## 7. `stats` (Collection)
+Replaces global singleton stats.
+
+### Option A: Aggregated Stats
+- Document ID: `global`
+  - `totalUsers`
+  - `totalReports`
+
+### Option B: Time-based Stats (Recommended)
+Path: `stats/daily/{date}`
+
+- Fields:
+  - `reportsCount`
+  - `usersCount`
+
+> Avoids write bottlenecks
+
+---
+
+## 8. `activity_logs` (Collection)
+Tracks all important actions for auditing and debugging.
+
+- Document ID: Auto-generated
+- Fields:
+  - `actionType`  
+    (e.g., "CREATE_COMMUNITY", "JOIN_COMMUNITY", "CREATE_REPORT", "UPDATE_REPORT_STATUS")
+  - `performedBy` (userId)
+  - `communityId` (optional, if applicable)
+  - `targetId` (reportId / communityId / userId)
+  - `metadata` (object for extra details)
+  - `createdAt` (timestamp)
+
+### Example:
+```json
+{
+  "actionType": "UPDATE_REPORT_STATUS",
+  "performedBy": "user_123",
+  "communityId": "community_456",
+  "targetId": "report_789",
+  "metadata": {
+    "oldStatus": "open",
+    "newStatus": "resolved"
+  },
+  "createdAt": "timestamp"
+}
